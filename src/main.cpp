@@ -1,19 +1,16 @@
-#include <iostream>
-
 #include <SFML/Graphics.hpp>
 
 #include "Grid.hpp"
-
+#include "Editor.hpp"
 
 int main() {
 
     sf::RenderWindow window(sf::VideoMode(800, 600), "Window");
 
     Grid grid;
+    Editor editor(window);
 
-    float spacing = 50;
-
-    grid.resize(window, spacing);
+    grid.resize(window);
 
     while (window.isOpen()) {
 
@@ -21,19 +18,20 @@ int main() {
         while (window.pollEvent(event)) {
             if (event.type == sf::Event::Closed) {
                 window.close();
-            }
-
-            if (event.type == sf::Event::Resized) {
+            } else if (event.type == sf::Event::Resized) {
                 sf::FloatRect visibleArea(0, 0, event.size.width, event.size.height);
                 window.setView(sf::View(visibleArea));
 
-                grid.resize(window, spacing);
+                grid.resize(window);
+            } else if (event.type == sf::Event::MouseMoved) {
+                editor.update();
             }
         }
 
         window.clear(sf::Color::White);
 
         window.draw(grid);
+        window.draw(editor.m_activeTile);
 
         window.display();
     }

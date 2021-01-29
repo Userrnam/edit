@@ -1,7 +1,7 @@
 #include "Grid.hpp"
 
 
-void Grid::resize(const sf::RenderWindow& window, float spacing) {
+void Grid::resize(const sf::RenderWindow& window) {
     auto size = window.getSize();
 
     int xCount = size.x / spacing + 1;
