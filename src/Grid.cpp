@@ -1,9 +1,7 @@
 #include "Grid.hpp"
 
 
-void Grid::resize(const sf::RenderWindow& window) {
-    auto size = window.getSize();
-
+void Grid::resize(sf::Vector2u size) {
     int xCount = size.x / spacing + 1;
     int yCount = size.y / spacing + 1;
 
