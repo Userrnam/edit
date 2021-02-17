@@ -20,8 +20,12 @@ sf::Vector2f fillLayout(ViewLayout *layout, UIBaseElement *root, sf::Vector2f po
             if (element->elementType == UIElementType::ELEMENT) {
                 PositionedElement pe;
 
-                pe.position = pos;
                 pe.element = static_cast<UIElement*>(element);
+
+                pe.fr.left = pos.x;
+                pe.fr.top  = pos.y;
+                pe.fr.width  = pe.element->description.size.x;
+                pe.fr.height = pe.element->description.size.y;
 
                 layout->elements.push_back(pe);
 
@@ -69,6 +73,29 @@ View::View(ViewDescription description) {
 
 void View::draw(sf::RenderWindow *window) {
     for (auto element : layout.elements) {
-        element.element->draw(window, element.position);
+        element.element->draw(window, { element.fr.left, element.fr.top });
+    }
+}
+
+void View::update(MouseEvent event) {
+    if (layout.pSelectedElement != nullptr) {
+        if (layout.pSelectedElement->fr.contains(event.pos)) {
+            layout.pSelectedElement->element->event(event);
+            return;
+        } else {
+            auto e = event;
+            e.action = MOUSE_LEAVE;
+            layout.pSelectedElement->element->event(e);
+            layout.pSelectedElement = nullptr;
+        }
+    }
+
+    for (auto& element : layout.elements) {
+        if (element.fr.contains(event.pos)) {
+            event.action = MOUSE_ENTER;
+            element.element->event(event);
+            layout.pSelectedElement = &element;
+            return;
+        }
     }
 }

@@ -10,11 +10,12 @@ struct ViewDescription {
 
 struct PositionedElement {
     UIElement* element;
-    sf::Vector2f position;
+    sf::FloatRect fr;
 };
 
 struct ViewLayout {
     std::vector<PositionedElement> elements;
+    PositionedElement* pSelectedElement = nullptr;
 };
 
 struct View {
@@ -24,4 +25,5 @@ struct View {
     View(ViewDescription description);
 
     void draw(sf::RenderWindow* window);
+    void update(MouseEvent event);
 };

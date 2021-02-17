@@ -17,7 +17,7 @@ int main() {
             }),
             new VStack({
                 new Rectangle(sf::Color::Black),
-                new Rectangle(sf::Color::Black),
+                new Rectangle(sf::Color::Cyan),
             }),
         }),
         new Rectangle(sf::Color::Magenta)
@@ -31,6 +31,29 @@ int main() {
         while (window.pollEvent(event)) {
             if (event.type == sf::Event::Closed) {
                 window.close();
+            }
+
+            else if (event.type == sf::Event::MouseButtonPressed) {
+                MouseEvent me;
+
+                me.action = sf::Event::MouseButtonPressed;
+                me.pos = { (float)event.mouseButton.x, (float)event.mouseButton.y };
+
+                view.update(me);
+            } else if (event.type == sf::Event::MouseButtonReleased) {
+                MouseEvent me;
+
+                me.action = sf::Event::MouseButtonReleased;
+                me.pos = { (float)event.mouseButton.x, (float)event.mouseButton.y };
+
+                view.update(me);
+            } else if (event.type == sf::Event::MouseMoved) {
+                MouseEvent me;
+
+                me.action = MOUSE_MOVE;
+                me.pos = { (float)event.mouseMove.x, (float)event.mouseMove.y };
+
+                view.update(me);
             }
         }
 
