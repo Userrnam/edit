@@ -3,6 +3,8 @@
 
 #include "UI.hpp"
 #include "Rect.hpp"
+#include "Stack.hpp"
+
 
 int main() {
     sf::RenderWindow window(sf::VideoMode(800, 600), "Window");

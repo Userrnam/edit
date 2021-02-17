@@ -1,34 +1,21 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
-#include <iostream>
+
+#include "UIBaseElement.hpp"
 
 #define MOUSE_ENTER -1
 #define MOUSE_MOVE  -2
 #define MOUSE_LEAVE -3
 
-enum class UIElementType {
-    ELEMENT,
-    VSTACK,
-    HSTACK
-};
-
-struct ElementDescription {
-    sf::Vector2f size;
-};
-
-struct UIBaseElement {
-    UIElementType elementType;
-    float padding = 5;
-
-    UIBaseElement(UIElementType t) {
-        elementType = t;
-    }
-};
 
 struct MouseEvent {
     sf::Vector2f pos;
     int action = 0;
+};
+
+struct ElementDescription {
+    sf::Vector2f size;
 };
 
 struct UIElement : public UIBaseElement {

@@ -5,22 +5,18 @@
 #include "UIElement.hpp"
 
 
-struct Stack : public UIBaseElement {
-    std::vector<UIBaseElement*> elements;
-
-    Stack(std::initializer_list<UIBaseElement*> list, UIElementType t) : UIBaseElement(t) {
-        elements.reserve(list.size());
-
-        for (auto e : list) {
-            elements.push_back(e);
-        }
-    }
+struct PositionedElement {
+    UIElement* element;
+    sf::FloatRect fr;
 };
 
-struct HStack : public Stack {
-    HStack(std::initializer_list<UIBaseElement*> list = {}) : Stack(list, UIElementType::HSTACK) {}
+struct ViewLayout {
+    std::vector<PositionedElement> elements;
+    PositionedElement* pSelectedElement = nullptr;
 };
 
-struct VStack : public Stack {
-    VStack(std::initializer_list<UIBaseElement*> list = {}) : Stack(list, UIElementType::VSTACK) {}
+struct Container : public UIBaseElement {
+    Container() : UIBaseElement(UIElementType::CONTAINER) {}
+
+    virtual sf::Vector2f fillLayout(ViewLayout* layout, sf::Vector2f pos) = 0;
 };
