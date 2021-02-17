@@ -13,8 +13,6 @@ sf::Vector2f fillLayout(ViewLayout *layout, UIBaseElement *root, sf::Vector2f po
         index = 1;
     }
 
-    UIBaseElement* currentElement;
-
     if (index != -1) {
         Stack* stack = static_cast<Stack*>(root);
 
@@ -30,11 +28,9 @@ sf::Vector2f fillLayout(ViewLayout *layout, UIBaseElement *root, sf::Vector2f po
                 float *dst = reinterpret_cast<float*>(&pos);
                 float *src = reinterpret_cast<float*>(&pe.element->description.size);
 
-                dst[index] += src[index];
+                dst[index] += (src[index] + element->padding);
 
                 float *pBorder = reinterpret_cast<float*>(&border);
-
-                pBorder[index] += src[index];
 
                 if (pBorder[1-index] < src[1-index]) {
                     pBorder[1-index] = src[1-index];
@@ -46,11 +42,9 @@ sf::Vector2f fillLayout(ViewLayout *layout, UIBaseElement *root, sf::Vector2f po
                 float *dst = reinterpret_cast<float*>(&pos);
                 float *src = reinterpret_cast<float*>(&size);
 
-                dst[index] += src[index];
+                dst[index] += (src[index] + element->padding);
 
                 float *pBorder = reinterpret_cast<float*>(&border);
-
-                pBorder[index] += src[index];
 
                 if (pBorder[1-index] < src[1-index]) {
                     pBorder[1-index] = src[1-index];
@@ -59,13 +53,18 @@ sf::Vector2f fillLayout(ViewLayout *layout, UIBaseElement *root, sf::Vector2f po
         }
     } 
 
+    float *pBorder = reinterpret_cast<float*>(&border);
+    float *pPos = reinterpret_cast<float*>(&pos);
+
+    pBorder[index] = pPos[index];
+
     return border;
 }
 
 View::View(ViewDescription description) {
     desc = description;
 
-    fillLayout(&layout, description.root);
+    fillLayout(&layout, description.root, description.pos);
 }
 
 void View::draw(sf::RenderWindow *window) {

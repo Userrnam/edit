@@ -5,6 +5,7 @@
 
 struct ViewDescription {
     UIBaseElement* root;
+    sf::Vector2f pos;
 };
 
 struct PositionedElement {

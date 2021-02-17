@@ -15,6 +15,7 @@ struct ElementDescription {
 
 struct UIBaseElement {
     UIElementType elementType;
+    float padding = 5;
 
     UIBaseElement(UIElementType t) {
         elementType = t;
