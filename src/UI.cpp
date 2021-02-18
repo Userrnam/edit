@@ -7,6 +7,10 @@ View::View(ViewDescription description) {
     desc.root->fillLayout(&layout, description.pos);
 }
 
+View::~View() {
+    delete desc.root;
+}
+
 void View::draw(sf::RenderWindow *window) {
     for (auto element : layout.elements) {
         element.element->draw(window, { element.fr.left, element.fr.top });

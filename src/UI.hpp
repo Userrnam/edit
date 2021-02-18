@@ -13,6 +13,7 @@ struct View {
     ViewDescription desc;
 
     View(ViewDescription description);
+    ~View();
 
     void draw(sf::RenderWindow* window);
     void update(MouseEvent event);
