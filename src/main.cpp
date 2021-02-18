@@ -1,70 +1,84 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 
-#include "UI.hpp"
-#include "Rect.hpp"
-#include "Stack.hpp"
+#include "Editor.hpp"
 
+
+bool isPrintable(sf::Keyboard::Key key) {
+    if (key >= sf::Keyboard::Key::A && key <= sf::Keyboard::Key::Num9 || 
+        key >= sf::Keyboard::Key::LBracket && key <= sf::Keyboard::Key::Space ||
+        key == sf::Keyboard::Key::Tab || key == sf::Keyboard::Enter ||
+        key >= sf::Keyboard::Key::Add && key <= sf::Keyboard::Key::Divide) {
+        return true;
+    }
+
+    return false;
+}
+
+char getChar(sf::Keyboard::Key key) {
+    if (key >= sf::Keyboard::Key::A && key <= sf::Keyboard::Z) {
+        return 'a' + key - sf::Keyboard::A;
+    }
+
+    if (key >= sf::Keyboard::Key::Num0 && key <= sf::Keyboard::Num9) {
+        return '0' + key - sf::Keyboard::Num0;
+    }
+
+    switch (key) {
+        case sf::Keyboard::LBracket:  return '[';
+        case sf::Keyboard::RBracket:  return ']';
+        case sf::Keyboard::SemiColon:  return ':';
+        case sf::Keyboard::Comma:  return ',';
+        case sf::Keyboard::Quote:  return '\'';
+        case sf::Keyboard::Slash:  return '/';
+        case sf::Keyboard::BackSlash:  return '\\';
+        case sf::Keyboard::Tilde:  return '~';
+        case sf::Keyboard::Equal:  return '=';
+        case sf::Keyboard::Hyphen:  return '-';
+        case sf::Keyboard::Space:  return ' ';
+        case sf::Keyboard::Enter:  return '\n';
+        case sf::Keyboard::Tab:  return '\t';
+        case sf::Keyboard::Add:  return '+';
+        case sf::Keyboard::Subtract:  return '-';
+        case sf::Keyboard::Multiply:  return '*';
+        case sf::Keyboard::Divide:  return '/';
+        default: return '-';
+    }
+}
 
 int main() {
     sf::RenderWindow window(sf::VideoMode(800, 600), "Window");
 
-    ViewDescription desc;
-    desc.pos = {5, 5};
+    Editor editor;
 
-    desc.root = new VStack ({
-        new HStack({
-            new VStack({
-                new Rectangle(sf::Color::Red),
-            }),
-            new VStack({
-                new Rectangle(sf::Color::Black),
-                new Rectangle(sf::Color::Cyan),
-            }),
-        }),
-        new Rectangle(sf::Color::Magenta)
-    });
-
-    View view(desc);
+    editor.init();
 
     while (window.isOpen()) {
-
         sf::Event event;
         while (window.pollEvent(event)) {
             if (event.type == sf::Event::Closed) {
                 window.close();
             }
 
-            else if (event.type == sf::Event::MouseButtonPressed) {
-                MouseEvent me;
+            if (event.type == sf::Event::KeyPressed) {
+                auto code = event.key.code;
 
-                me.action = sf::Event::MouseButtonPressed;
-                me.pos = { (float)event.mouseButton.x, (float)event.mouseButton.y };
+                EditInfo ei;
+                ei.event = event.key;
 
-                view.update(me);
-            } else if (event.type == sf::Event::MouseButtonReleased) {
-                MouseEvent me;
+                if (isPrintable(code)) {
+                    ei.c = getChar(code);
+                }
 
-                me.action = sf::Event::MouseButtonReleased;
-                me.pos = { (float)event.mouseButton.x, (float)event.mouseButton.y };
-
-                view.update(me);
-            } else if (event.type == sf::Event::MouseMoved) {
-                MouseEvent me;
-
-                me.action = MOUSE_MOVE;
-                me.pos = { (float)event.mouseMove.x, (float)event.mouseMove.y };
-
-                view.update(me);
+                editor.update(ei);
             }
+
+            window.clear(sf::Color::White);
+
+            window.draw(editor.cursor);
+            window.draw(editor.text);
+
+            window.display();
         }
-
-        window.clear(sf::Color::White);
-
-        view.draw(&window);
-
-        window.display();
     }
-
-    return 0;
 }
