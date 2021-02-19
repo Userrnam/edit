@@ -30,6 +30,11 @@ struct Editor {
     sf::Font font;
     int cursorPos = 0;
 
+    void draw(sf::RenderWindow& window) {
+        window.draw(cursor);
+        window.draw(text);
+    }
+
     void init() {
         font.loadFromFile("font.otf");
 

@@ -15,7 +15,7 @@ bool isPrintable(sf::Keyboard::Key key) {
     return false;
 }
 
-char getChar(sf::Keyboard::Key key) {
+char _getChar(sf::Keyboard::Key key) {
     if (key >= sf::Keyboard::Key::A && key <= sf::Keyboard::Z) {
         return 'a' + key - sf::Keyboard::A;
     }
@@ -27,7 +27,7 @@ char getChar(sf::Keyboard::Key key) {
     switch (key) {
         case sf::Keyboard::LBracket:  return '[';
         case sf::Keyboard::RBracket:  return ']';
-        case sf::Keyboard::SemiColon:  return ':';
+        case sf::Keyboard::SemiColon:  return ';';
         case sf::Keyboard::Comma:  return ',';
         case sf::Keyboard::Quote:  return '\'';
         case sf::Keyboard::Slash:  return '/';
@@ -44,6 +44,37 @@ char getChar(sf::Keyboard::Key key) {
         case sf::Keyboard::Divide:  return '/';
         default: return '-';
     }
+}
+
+char getChar(sf::Keyboard::Key key, bool shift) {
+    char c = _getChar(key);
+
+    if (!shift) {
+        return c;
+    }
+
+    if ('a' <= c && c <= 'z') {
+        return c - ('a' - 'A');
+    }
+
+    switch (c) {
+        case '1' : return '!';
+        case '2' : return '@';
+        case '3' : return '#';
+        case '4' : return '$';
+        case '5' : return '%';
+        case '6' : return '^';
+        case '7' : return '&';
+        case '8' : return '*';
+        case '9' : return '(';
+        case '0' : return ')';
+        case '[' : return '{';
+        case ']' : return '}';
+        case ';' : return ':';
+        case '\'' : return '\"';
+    }
+
+    return '-';
 }
 
 int main() {
@@ -67,7 +98,7 @@ int main() {
                 ei.event = event.key;
 
                 if (isPrintable(code)) {
-                    ei.c = getChar(code);
+                    ei.c = getChar(code, event.key.shift);
                 }
 
                 editor.update(ei);
@@ -75,8 +106,7 @@ int main() {
 
             window.clear(sf::Color::White);
 
-            window.draw(editor.cursor);
-            window.draw(editor.text);
+            editor.draw(window);
 
             window.display();
         }
