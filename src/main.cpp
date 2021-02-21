@@ -76,6 +76,7 @@ char getChar(sf::Keyboard::Key key, bool shift) {
         case ',' : return '<';
         case '.' : return '>';
         case '\'' : return '\"';
+        case '\\' : return '|';
     }
 
     return '-';

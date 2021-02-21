@@ -35,3 +35,14 @@ struct Buffer {
     void moveToEndOfLine();
     void moveToBegginingOfLine();
 };
+
+void buffer_eraseChar(Buffer* buffer);
+void buffer_removeline(Buffer* buffer);
+void buffer_moveLeft(Buffer* buffer);
+void buffer_moveRight(Buffer* buffer);
+void buffer_moveUp(Buffer* buffer);
+void buffer_moveDown(Buffer* buffer);
+void buffer_moveToEndOfLine(Buffer* buffer);
+void buffer_moveToBegginingOfLine(Buffer* buffer);
+void buffer_removeWordForward(Buffer* buffer);
+void buffer_removeWordBackword(Buffer* buffer);
