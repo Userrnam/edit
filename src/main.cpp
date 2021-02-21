@@ -90,8 +90,8 @@ int main() {
 
     editor.init();
 
-    // f.open("test.txt", std::ios::in);
-    f.open("/Users/antonkondratuk/Desktop/Vulkan/AGE/AGE/External/stb_image.h", std::ios::in);
+    f.open("test.txt", std::ios::in);
+    // f.open("/Users/antonkondratuk/Desktop/Vulkan/AGE/AGE/External/stb_image.h", std::ios::in);
     std::string str((std::istreambuf_iterator<char>(f)),
                     std::istreambuf_iterator<char>());
 

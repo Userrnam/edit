@@ -27,4 +27,11 @@ struct Buffer {
 
     void moveLeft();
     void moveRight();
+    void moveUp();
+    void moveDown();
+
+    int getCurrentPositionInLine();
+
+    void moveToEndOfLine();
+    void moveToBegginingOfLine();
 };

@@ -1,1 +1,4 @@
-Привет
+Hello world. This is a small Test
+of my text editor. Why I create
+a text editor?? Well, because I
+want to

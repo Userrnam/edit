@@ -99,16 +99,62 @@ void Buffer::removeline() {
 void Buffer::moveLeft() {
     if (cursorPos > 0)
     cursorPos--;
+
+    std::cout << getCurrentPositionInLine() << std::endl;
 }
 
 void Buffer::moveRight() {
     if (cursorPos < s.s.size())
     cursorPos++;
+
+    std::cout << getCurrentPositionInLine() << std::endl;
 }
 
+void Buffer::moveUp() {
+    int linePos = getCurrentPositionInLine();
 
+    moveToBegginingOfLine();
 
+    cursorPos--;
+    moveToBegginingOfLine();
 
+    cursorPos += linePos;
+}
 
+void Buffer::moveDown() {
+    int linePos = getCurrentPositionInLine() + 1;
 
+    moveToEndOfLine();
 
+    cursorPos = (cursorPos + linePos) < s.s.size() ? cursorPos + linePos : s.s.size() - 1;
+}
+
+int Buffer::getCurrentPositionInLine() {
+    int pos = cursorPos;
+    int count = 0;
+
+    while (1) {
+        if (pos-count == 0 || s.s[pos-count-1] == '\n') {
+            return count;
+        }
+
+        count++;
+    }
+}
+
+void Buffer::moveToEndOfLine() {
+    while (1) {
+        if (cursorPos == s.s.size()-1 || s.s[cursorPos] == '\n') {
+            break;
+        }
+
+        cursorPos++;
+    }
+}
+
+void Buffer::moveToBegginingOfLine() {
+    cursorPos -= getCurrentPositionInLine();
+    if (cursorPos < 0) {
+        cursorPos = 0;
+    }
+}

@@ -89,6 +89,14 @@ struct Editor {
                     buffer.moveLeft();
                 } else if (info.c == 'l') {
                     buffer.moveRight();
+                } else if (info.c == 'e') {
+                    buffer.moveToEndOfLine();
+                } else if (info.c == 'j') {
+                    buffer.moveDown();
+                } else if (info.c == 'k') {
+                    buffer.moveUp();
+                } else if (info.c == '0') {
+                    buffer.moveToBegginingOfLine();
                 }
             } else {
                 buffer.addChar(info.c);
