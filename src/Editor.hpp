@@ -3,57 +3,13 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 
+#include "Buffer.hpp"
+
+
 struct EditInfo {
     char c = -1;
     sf::Event::KeyEvent event;
 };
-
-struct MyString {
-    sf::String s;
-    int pos = 0;
-};
-
-std::vector<char> separators = {
-    ' ', '\t', '\n', ',', '.',
-    '(', ')', '[', ']', '{', '}',
-    ':', ';',
-    '=', '-', '+', '*', '/'
-};
-
-sf::String readNextWord(MyString& source) {
-    sf::String word = "";
-
-    while (source.pos < source.s.getSize()) {
-        char c = source.s[source.pos];
-
-        if (std::find(separators.begin(), separators.end(), c) != separators.end()) {
-            if (word.isEmpty()) {
-                word = c;
-                source.pos++;
-            }
-            return word;
-        }
-
-        word += c;
-        source.pos++;
-    }
-
-    return word;
-}
-
-void fullPrint(sf::String& s) {
-    for (char c : s) {
-        if (c == '\n') {
-            std::cout << "\\n";
-        } else if (c == '\t') {
-            std::cout << "\\t";
-        } else {
-            std::cout << c;
-        }
-    }
-
-    std::cout << std::endl;
-}
 
 sf::Color getColorForWord(const sf::String& word) {
     static const std::vector<sf::String> keywords = {
@@ -68,34 +24,36 @@ sf::Color getColorForWord(const sf::String& word) {
 }
 
 struct Editor {
+    Buffer buffer;
+
     sf::Text text;
-    MyString s;
     sf::RectangleShape cursor;
     sf::Vector2f charSize;
     sf::Font font;
-    int cursorPos = 0;
 
     void draw(sf::RenderWindow& window) {
         window.draw(cursor);
-        // window.draw(text);
 
         sf::Text t;
         t.setFont(font);
         t.setCharacterSize(text.getCharacterSize());
 
+        MyString ms;
+        ms.s = text.getString();
+
         int index = 0;
         while (1) {
-            auto word = readNextWord(s);
+            auto word = readNextWord(ms);
 
             if (word == "") {
-                s.pos = 0;
+                buffer.s.pos = 0;
                 break;
             }
 
             auto pos = text.findCharacterPos(index);
 
             if (pos.y > window.getSize().y) {
-                s.pos = 0;
+                buffer.s.pos = 0;
                 break;
             }
 
@@ -103,14 +61,14 @@ struct Editor {
             t.setString(word);
             t.setFillColor(getColorForWord(word));
 
-            index += word.getSize();
+            index += word.size();
 
             window.draw(t);
         }
     }
 
     void init() {
-        font.loadFromFile("font.otf");
+        font.loadFromFile("Hack-Regular.ttf");
 
         text.setFont(font);
         text.setFillColor(sf::Color::Black);
@@ -124,64 +82,42 @@ struct Editor {
         cursor.setFillColor(sf::Color::Green);
     }
 
-    void addChar(char c) {
-        s.s.insert(cursorPos, c);
-        cursorPos++;
-    }
-
-    void moveLeft() {
-        if (cursorPos > 0)
-        cursorPos--;
-    }
-
-    void moveRight() {
-        if (cursorPos < s.s.getSize())
-        cursorPos++;
-    }
-
-    void eraseChar() {
-        if (s.s.isEmpty())  return;
-
-        cursorPos--;
-        s.s.erase(cursorPos);
-    }
-
     void update(EditInfo info) {
         if (info.c != -1) {
-            addChar(info.c);
+            if (info.event.control) {
+                if (info.c == 'h') {
+                    buffer.moveLeft();
+                } else if (info.c == 'l') {
+                    buffer.moveRight();
+                }
+            } else {
+                buffer.addChar(info.c);
+            }
         } else {
-            if (info.event.code == sf::Keyboard::BackSpace && s.s.getSize()) {
+            if (info.event.code == sf::Keyboard::BackSpace && !buffer.isEmpty()) {
                 if (info.event.system) {
-                    removeline();
+                    buffer.removeline();
                 } else {
-                    eraseChar();
+                    buffer.eraseChar();
+                    std::cout << "Buffer size is " << buffer.s.s.size() << std::endl;
                 }
             } else if (info.event.code == sf::Keyboard::Left) {
-                moveLeft();
+                buffer.moveLeft();
             } else if (info.event.code == sf::Keyboard::Right) {
-                moveRight();
+                buffer.moveRight();
             }
         }
 
-        text.setString(s.s);
+        auto s = buffer.getLines(0, 30);
 
-        if (s.s.isEmpty()) {
+        text.setString(s);
+
+        if (buffer.isEmpty()) {
             cursor.setPosition(sf::Vector2f(0, 0));
         } else {
-            auto pos = text.findCharacterPos(cursorPos);
+            auto pos = text.findCharacterPos(buffer.cursorPos);
 
             cursor.setPosition(pos);
         }
-    }
-
-    void removeline() {
-        int p = cursorPos;
-
-        while (p > 0 && s.s[p] != '\n') {
-            p--;
-        }
-
-        s.s.erase(p, cursorPos-p);
-        cursorPos = p;
     }
 };

@@ -30,6 +30,7 @@ char _getChar(sf::Keyboard::Key key) {
         case sf::Keyboard::RBracket:  return ']';
         case sf::Keyboard::SemiColon:  return ';';
         case sf::Keyboard::Comma:  return ',';
+        case sf::Keyboard::Period:  return '.';
         case sf::Keyboard::Quote:  return '\'';
         case sf::Keyboard::Slash:  return '/';
         case sf::Keyboard::BackSlash:  return '\\';
@@ -72,6 +73,8 @@ char getChar(sf::Keyboard::Key key, bool shift) {
         case '[' : return '{';
         case ']' : return '}';
         case ';' : return ':';
+        case ',' : return '<';
+        case '.' : return '>';
         case '\'' : return '\"';
     }
 
@@ -87,11 +90,14 @@ int main() {
 
     editor.init();
 
-    f.open("src/Editor.hpp", std::ios::in);
+    // f.open("test.txt", std::ios::in);
+    f.open("/Users/antonkondratuk/Desktop/Vulkan/AGE/AGE/External/stb_image.h", std::ios::in);
     std::string str((std::istreambuf_iterator<char>(f)),
                     std::istreambuf_iterator<char>());
 
-    editor.s.s = str;
+    editor.buffer.s.s = str;
+    
+    std::cout << str.size() << std::endl;
 
     while (window.isOpen()) {
         sf::Event event;
