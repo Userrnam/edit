@@ -8,6 +8,39 @@ struct EditInfo {
     sf::Event::KeyEvent event;
 };
 
+struct MyString {
+    sf::String s;
+    int pos = 0;
+};
+
+std::vector<char> separators = {
+    ' ', '\t', '\n', ',', '.',
+    '(', ')', '[', ']', '{', '}',
+    ':', ';',
+    '=', '-', '+', '*', '/'
+};
+
+sf::String readNextWord(MyString& source) {
+    sf::String word = "";
+
+    while (source.pos < source.s.getSize()) {
+        char c = source.s[source.pos];
+
+        if (std::find(separators.begin(), separators.end(), c) != separators.end()) {
+            if (word.isEmpty()) {
+                word = c;
+                source.pos++;
+            }
+            return word;
+        }
+
+        word += c;
+        source.pos++;
+    }
+
+    return word;
+}
+
 void fullPrint(sf::String& s) {
     for (char c : s) {
         if (c == '\n') {
@@ -22,9 +55,21 @@ void fullPrint(sf::String& s) {
     std::cout << std::endl;
 }
 
+sf::Color getColorForWord(const sf::String& word) {
+    static const std::vector<sf::String> keywords = {
+        "if", "while", "do", "goto", "void", "int", "float", "double", "char"
+    };
+
+    if (std::find(keywords.begin(), keywords.end(), word) != keywords.end()) {
+        return sf::Color::Red;
+    }
+
+    return sf::Color::Black;
+}
+
 struct Editor {
     sf::Text text;
-    sf::String s;
+    MyString s;
     sf::RectangleShape cursor;
     sf::Vector2f charSize;
     sf::Font font;
@@ -32,7 +77,36 @@ struct Editor {
 
     void draw(sf::RenderWindow& window) {
         window.draw(cursor);
-        window.draw(text);
+        // window.draw(text);
+
+        sf::Text t;
+        t.setFont(font);
+        t.setCharacterSize(text.getCharacterSize());
+
+        int index = 0;
+        while (1) {
+            auto word = readNextWord(s);
+
+            if (word == "") {
+                s.pos = 0;
+                break;
+            }
+
+            auto pos = text.findCharacterPos(index);
+
+            if (pos.y > window.getSize().y) {
+                s.pos = 0;
+                break;
+            }
+
+            t.setPosition(pos);
+            t.setString(word);
+            t.setFillColor(getColorForWord(word));
+
+            index += word.getSize();
+
+            window.draw(t);
+        }
     }
 
     void init() {
@@ -51,7 +125,7 @@ struct Editor {
     }
 
     void addChar(char c) {
-        s.insert(cursorPos, c);
+        s.s.insert(cursorPos, c);
         cursorPos++;
     }
 
@@ -61,22 +135,22 @@ struct Editor {
     }
 
     void moveRight() {
-        if (cursorPos < s.getSize())
+        if (cursorPos < s.s.getSize())
         cursorPos++;
     }
 
     void eraseChar() {
-        if (s.isEmpty())  return;
+        if (s.s.isEmpty())  return;
 
         cursorPos--;
-        s.erase(cursorPos);
+        s.s.erase(cursorPos);
     }
 
     void update(EditInfo info) {
         if (info.c != -1) {
             addChar(info.c);
         } else {
-            if (info.event.code == sf::Keyboard::BackSpace && s.getSize()) {
+            if (info.event.code == sf::Keyboard::BackSpace && s.s.getSize()) {
                 if (info.event.system) {
                     removeline();
                 } else {
@@ -89,32 +163,25 @@ struct Editor {
             }
         }
 
-        text.setString(s);
+        text.setString(s.s);
 
-        if (s.isEmpty()) {
+        if (s.s.isEmpty()) {
             cursor.setPosition(sf::Vector2f(0, 0));
         } else {
             auto pos = text.findCharacterPos(cursorPos);
 
-            if (s[cursorPos] == '\n') {
-                pos.x = 0;               
-                pos.y += charSize.y + text.getLineSpacing();
-            }
-
             cursor.setPosition(pos);
-
-            fullPrint(s);
         }
     }
 
     void removeline() {
         int p = cursorPos;
 
-        while (p > 0 && s[p] != '\n') {
+        while (p > 0 && s.s[p] != '\n') {
             p--;
         }
 
-        s.erase(p, cursorPos-p);
+        s.s.erase(p, cursorPos-p);
         cursorPos = p;
     }
 };

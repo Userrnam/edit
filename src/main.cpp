@@ -1,5 +1,6 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
+#include <fstream>
 
 #include "Editor.hpp"
 
@@ -82,7 +83,15 @@ int main() {
 
     Editor editor;
 
+    std::fstream f;
+
     editor.init();
+
+    f.open("src/Editor.hpp", std::ios::in);
+    std::string str((std::istreambuf_iterator<char>(f)),
+                    std::istreambuf_iterator<char>());
+
+    editor.s.s = str;
 
     while (window.isOpen()) {
         sf::Event event;
