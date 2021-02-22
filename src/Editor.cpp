@@ -51,7 +51,7 @@ std::unordered_map<sf::Keyboard::Key, std::vector<KeyBinding>> bindings = {
     {sf::Keyboard::L,    { KeyBinding(buffer_moveRight, CmdKeyControl) } },
     {sf::Keyboard::J,    { KeyBinding(buffer_moveDown, CmdKeyControl) } },
     {sf::Keyboard::K,    { KeyBinding(buffer_moveUp, CmdKeyControl) } },
-    {sf::Keyboard::Num0, { KeyBinding(buffer_moveToBegginingOfLine, CmdKeyControl) } },
+    {sf::Keyboard::Num0, { KeyBinding(buffer_moveToBeginningOfLine, CmdKeyControl) } },
     {sf::Keyboard::E,    { KeyBinding(buffer_moveToEndOfLine, CmdKeyControl) } },
 
     {sf::Keyboard::BackSpace, { KeyBinding(buffer_eraseChar, 0), KeyBinding(buffer_removeline, CmdKeySystem) } },
@@ -62,7 +62,12 @@ std::unordered_map<sf::Keyboard::Key, std::vector<KeyBinding>> bindings = {
     {sf::Keyboard::Down,  { KeyBinding(buffer_moveDown, 0) } },
 
     {sf::Keyboard::W,  { KeyBinding(buffer_moveWordForward,  CmdKeyShift | CmdKeySystem) } },
-    {sf::Keyboard::B,  { KeyBinding(buffer_moveWordBackword, CmdKeyShift | CmdKeySystem) } },
+    {sf::Keyboard::B,  {
+        KeyBinding(buffer_moveWordBackword, CmdKeyShift | CmdKeySystem),
+        KeyBinding(buffer_moveToEndOfFile, CmdKeyControl)
+    } },
+
+    {sf::Keyboard::G, { KeyBinding(buffer_moveToBeginningOfFile, CmdKeyControl) } },
 };
 
 void Editor::draw(sf::RenderWindow& window) {
@@ -93,14 +98,12 @@ void Editor::draw(sf::RenderWindow& window) {
         auto word = readNextWord(ms);
 
         if (word == "") {
-            // buffer.s.pos = 0;
             break;
         }
 
         auto pos = text.findCharacterPos(index);
 
         if (pos.y > window.getSize().y) {
-            // buffer.s.pos = 0;
             break;
         }
 
@@ -140,11 +143,19 @@ void Editor::init() {
 }
 
 void Editor::updateDrawInfo(const sf::RenderWindow& window) {
-    if (buffer.currentLine == buffer.lastVisibleLine - 3) {
-        topLine += 1;
-    } else if (buffer.currentLine == buffer.firstVisibleLine && buffer.currentLine != 0) {
-        topLine -= 1;
+    if (buffer.currentLine >= buffer.lastVisibleLine - 3) {
+        topLine += (buffer.currentLine - buffer.lastVisibleLine + 4);
+    } else if (buffer.currentLine <= buffer.firstVisibleLine) {
+        topLine -= (buffer.firstVisibleLine - buffer.currentLine + 1);
+
+        if (topLine < 0)  topLine = 0;
     }
+
+    std::cout << "On last line: " << buffer.onLastLine() << std::endl;
+    std::cout << "Current Line is " << buffer.currentLine << std::endl;
+    std::cout << "firstVisible Line is " << buffer.firstVisibleLine << std::endl;
+    std::cout << "lastVisible Line is " << buffer.lastVisibleLine << std::endl;
+    std::cout << "Top Line is " << topLine << std::endl;
 
     int cursorPos;
 

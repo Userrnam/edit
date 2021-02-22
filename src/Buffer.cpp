@@ -102,6 +102,8 @@ String Buffer::getLines(int start, int end, int* relativeCursorPos) {
 void Buffer::addChar(char c) {
     s.s.insert(s.s.begin()+cursorPos, c);
     cursorPos++;
+
+    if (c == '\n')  currentLine++;
 }
 
 int Buffer::getCurrentPositionInLine() {
@@ -116,10 +118,23 @@ int Buffer::getCurrentPositionInLine() {
     }
 }
 
+bool Buffer::onLastLine() {
+    int p = cursorPos;
+
+    while (s.s.size() != p) {
+        if (s.s[p] == '\n') {
+            return false;
+        }
+        p++;
+    }
+
+    return true;
+}
+
 void buffer_eraseChar(Buffer* buffer) {
     if (buffer->cursorPos == 0)  return;
 
-    if (buffer->s.s[buffer->cursorPos] == '\n') {
+    if (buffer->s.s[buffer->cursorPos-1] == '\n') {
         buffer->currentLine--;
     }
 
@@ -170,10 +185,10 @@ void buffer_moveUp(Buffer* buffer) {
 
     buffer->currentLine--;
 
-    buffer_moveToBegginingOfLine(buffer);
+    buffer_moveToBeginningOfLine(buffer);
 
     buffer->cursorPos--;
-    buffer_moveToBegginingOfLine(buffer);
+    buffer_moveToBeginningOfLine(buffer);
 
     for (int i = 0; i < linePos && buffer->s.s[buffer->cursorPos] != '\n'; ++i) {
         buffer->cursorPos++;
@@ -187,7 +202,7 @@ void buffer_moveDown(Buffer* buffer) {
 
     buffer_moveToEndOfLine(buffer);
 
-    if (buffer->cursorPos == buffer->s.s.size()-1) {
+    if (buffer->cursorPos >= buffer->s.s.size()) {
         buffer->cursorPos = previousCursorPos;
         return;
     }
@@ -211,7 +226,7 @@ void buffer_moveToEndOfLine(Buffer* buffer) {
     }
 }
 
-void buffer_moveToBegginingOfLine(Buffer* buffer) {
+void buffer_moveToBeginningOfLine(Buffer* buffer) {
     buffer->cursorPos -= buffer->getCurrentPositionInLine();
     if (buffer->cursorPos < 0) {
         buffer->cursorPos = 0;
@@ -248,4 +263,22 @@ void buffer_moveWordBackword(Buffer* buffer) {
     if (buffer->s.s[buffer->cursorPos] == '\n') {
         buffer->currentLine--;
     }
+}
+
+void buffer_moveToEndOfFile(Buffer* buffer) {
+    while (1) {
+        buffer_moveToEndOfLine(buffer);
+
+        if (buffer->s.s.size() == buffer->cursorPos) {
+            break;
+        }
+
+        buffer->cursorPos++;
+        buffer->currentLine++;
+    }
+}
+
+void buffer_moveToBeginningOfFile(Buffer* buffer) {
+    buffer->cursorPos = 0;
+    buffer->currentLine = 0;
 }

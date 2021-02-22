@@ -19,13 +19,14 @@ struct Buffer {
     int cursorPos = 0;
     int currentLine = 0;
     int firstVisibleLine = 0;
-    int lastVisibleLine = 0;
+    int lastVisibleLine = 5;
 
     String getLines(int start, int end, int* relativeCursorPos);
 
     bool isEmpty() { return s.s.empty(); }
     void addChar(char c);
     int getCurrentPositionInLine();
+    bool onLastLine();
 };
 
 void buffer_eraseChar(Buffer* buffer);
@@ -35,6 +36,8 @@ void buffer_moveRight(Buffer* buffer);
 void buffer_moveUp(Buffer* buffer);
 void buffer_moveDown(Buffer* buffer);
 void buffer_moveToEndOfLine(Buffer* buffer);
-void buffer_moveToBegginingOfLine(Buffer* buffer);
+void buffer_moveToBeginningOfLine(Buffer* buffer);
 void buffer_moveWordForward(Buffer* buffer);
 void buffer_moveWordBackword(Buffer* buffer);
+void buffer_moveToEndOfFile(Buffer* buffer);
+void buffer_moveToBeginningOfFile(Buffer* buffer);
