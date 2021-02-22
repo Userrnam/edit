@@ -85,6 +85,7 @@ char getChar(sf::Keyboard::Key key, bool shift) {
 
 int main() {
     sf::RenderWindow window(sf::VideoMode(800, 600), "Window");
+    window.setFramerateLimit(30);
 
     Editor editor;
 
@@ -93,26 +94,23 @@ int main() {
     editor.init();
 
     f.open("test.txt", std::ios::in);
-    // f.open("/Users/antonkondratuk/Desktop/Vulkan/AGE/AGE/External/stb_image.h", std::ios::in);
     std::string str((std::istreambuf_iterator<char>(f)),
                     std::istreambuf_iterator<char>());
 
     editor.buffer.s.s = str;
+    editor.updateDrawInfo(window);
     
-    std::cout << str.size() << std::endl;
-
     bool eventHappend = true;
 
     while (window.isOpen()) {
         sf::Event event;
+
         while (window.pollEvent(event)) {
             eventHappend = true;
 
             if (event.type == sf::Event::Closed) {
                 window.close();
-            }
-
-            if (event.type == sf::Event::KeyPressed) {
+            } else if (event.type == sf::Event::KeyPressed) {
                 auto code = event.key.code;
 
                 EditInfo ei;
@@ -123,7 +121,12 @@ int main() {
                 }
 
                 editor.update(ei);
+            } else if (event.type == sf::Event::Resized) {
+                sf::FloatRect visibleArea(0, 0, event.size.width, event.size.height);
+                window.setView(sf::View(visibleArea));
             }
+
+            editor.updateDrawInfo(window);
         }
 
         if (eventHappend) {

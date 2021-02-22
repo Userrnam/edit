@@ -109,6 +109,20 @@ void Editor::init() {
     cursor.setFillColor(sf::Color::Green);
 }
 
+void Editor::updateDrawInfo(const sf::RenderWindow& window) {
+    auto s = buffer.getLines(0, window.getSize().x / cursor.getSize().x);
+
+    text.setString(s);
+
+    if (buffer.isEmpty()) {
+        cursor.setPosition(sf::Vector2f(0, 0));
+    } else {
+        auto pos = text.findCharacterPos(buffer.cursorPos);
+
+        cursor.setPosition(pos);
+    }
+}
+
 void Editor::update(EditInfo info) {
     auto it = bindings.find(info.event.code);
 
@@ -128,17 +142,5 @@ void Editor::update(EditInfo info) {
 
     if (!handled && info.c != -1) {
         buffer.addChar(info.c);
-    }
-
-    auto s = buffer.getLines(0, 30);
-
-    text.setString(s);
-
-    if (buffer.isEmpty()) {
-        cursor.setPosition(sf::Vector2f(0, 0));
-    } else {
-        auto pos = text.findCharacterPos(buffer.cursorPos);
-
-        cursor.setPosition(pos);
     }
 }

@@ -25,4 +25,5 @@ struct Editor {
     void init();
 
     void update(EditInfo info);
+    void updateDrawInfo(const sf::RenderWindow& window);
 };
