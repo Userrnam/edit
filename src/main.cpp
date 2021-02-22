@@ -60,23 +60,24 @@ char getChar(sf::Keyboard::Key key, bool shift) {
     }
 
     switch (c) {
-        case '1' : return '!';
-        case '2' : return '@';
-        case '3' : return '#';
-        case '4' : return '$';
-        case '5' : return '%';
-        case '6' : return '^';
-        case '7' : return '&';
-        case '8' : return '*';
-        case '9' : return '(';
-        case '0' : return ')';
-        case '[' : return '{';
-        case ']' : return '}';
-        case ';' : return ':';
-        case ',' : return '<';
-        case '.' : return '>';
+        case '1'  : return '!';
+        case '2'  : return '@';
+        case '3'  : return '#';
+        case '4'  : return '$';
+        case '5'  : return '%';
+        case '6'  : return '^';
+        case '7'  : return '&';
+        case '8'  : return '*';
+        case '9'  : return '(';
+        case '0'  : return ')';
+        case '['  : return '{';
+        case ']'  : return '}';
+        case ';'  : return ':';
+        case ','  : return '<';
+        case '.'  : return '>';
         case '\'' : return '\"';
         case '\\' : return '|';
+        case '/'  : return '?';
     }
 
     return '-';
@@ -100,9 +101,13 @@ int main() {
     
     std::cout << str.size() << std::endl;
 
+    bool eventHappend = true;
+
     while (window.isOpen()) {
         sf::Event event;
         while (window.pollEvent(event)) {
+            eventHappend = true;
+
             if (event.type == sf::Event::Closed) {
                 window.close();
             }
@@ -119,12 +124,16 @@ int main() {
 
                 editor.update(ei);
             }
+        }
 
+        if (eventHappend) {
             window.clear(sf::Color::White);
 
             editor.draw(window);
 
             window.display();
         }
+
+        eventHappend = false;
     }
 }

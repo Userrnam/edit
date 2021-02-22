@@ -54,8 +54,8 @@ std::unordered_map<sf::Keyboard::Key, std::vector<KeyBinding>> bindings = {
     {sf::Keyboard::Up,    { KeyBinding(buffer_moveUp, 0) } },
     {sf::Keyboard::Down,  { KeyBinding(buffer_moveDown, 0) } },
 
-    {sf::Keyboard::W,  { KeyBinding(buffer_removeWordForward,  CmdKeyShift | CmdKeySystem) } },
-    {sf::Keyboard::B,  { KeyBinding(buffer_removeWordBackword, CmdKeyShift | CmdKeySystem) } },
+    {sf::Keyboard::W,  { KeyBinding(buffer_moveWordForward,  CmdKeyShift | CmdKeySystem) } },
+    {sf::Keyboard::B,  { KeyBinding(buffer_moveWordBackword, CmdKeyShift | CmdKeySystem) } },
 };
 
 void Editor::draw(sf::RenderWindow& window) {
