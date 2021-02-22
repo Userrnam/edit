@@ -19,7 +19,7 @@ const uint CmdKeyAlt     = 1;
 const uint CmdKeyControl = 2;
 const uint CmdKeyShift   = 4;
 const uint CmdKeySystem  = 8;
-const float leftSpacing  = 100;
+const float leftSpacing  = 50;
 
 uint eventToCode(sf::Event::KeyEvent e) {
     uint res = 0;
@@ -71,8 +71,6 @@ std::unordered_map<sf::Keyboard::Key, std::vector<KeyBinding>> bindings = {
 };
 
 void Editor::draw(sf::RenderWindow& window) {
-    window.draw(cursor);
-
     sf::Text t;
     t.setFont(font);
     t.setCharacterSize(text.getCharacterSize());
@@ -87,6 +85,12 @@ void Editor::draw(sf::RenderWindow& window) {
     t.setFillColor(sf::Color::Black);
     t.setString(nums);
 
+    float ls = t.getLocalBounds().width + leftSpacing;
+
+    text.move({ls, 0});
+    cursor.move({ls, 0});
+
+    window.draw(cursor);
     window.draw(t);
 
     MyString ms;
@@ -151,21 +155,15 @@ void Editor::updateDrawInfo(const sf::RenderWindow& window) {
         if (topLine < 0)  topLine = 0;
     }
 
-    std::cout << "On last line: " << buffer.onLastLine() << std::endl;
-    std::cout << "Current Line is " << buffer.currentLine << std::endl;
-    std::cout << "firstVisible Line is " << buffer.firstVisibleLine << std::endl;
-    std::cout << "lastVisible Line is " << buffer.lastVisibleLine << std::endl;
-    std::cout << "Top Line is " << topLine << std::endl;
-
     int cursorPos;
 
     auto s = buffer.getLines(topLine, topLine + window.getSize().y / cursor.getSize().y + 2, &cursorPos);
 
     text.setString(s);
-    text.setPosition({ leftSpacing, scrollValue });
+    text.setPosition({ 0, scrollValue });
 
     if (buffer.isEmpty()) {
-        cursor.setPosition(sf::Vector2f(leftSpacing, text.getLineSpacing()));
+        cursor.setPosition(sf::Vector2f(0, text.getLineSpacing()));
     } else {
         auto pos = text.findCharacterPos(cursorPos);
 

@@ -91,6 +91,7 @@ String Buffer::getLines(int start, int end, int* relativeCursorPos) {
 
     while (1) {
         buffer_moveDown(this);
+        buffer_moveToEndOfLine(this);
         if (currentLine == start) {
             buffer_moveToBeginningOfLine(this);
             pStart = &s.s[cursorPos];
