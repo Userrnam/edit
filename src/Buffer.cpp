@@ -65,8 +65,6 @@ void fullPrint(const String& s) {
 }
 
 String Buffer::getLines(int start, int end, int* relativeCursorPos) {
-    int count = 0;
-
     firstVisibleLine = start;
     lastVisibleLine  = end;
 
@@ -77,18 +75,39 @@ String Buffer::getLines(int start, int end, int* relativeCursorPos) {
     char* pStart = &s.s[0];
     char* pEnd   = nullptr;
 
-    for (int i = 0; i < s.s.size(); ++i) {
-        if (s.s[i] == '\n') {
-            count++;
+    int currentLineCopy = currentLine;
+    int cursorPosCopy   = cursorPos;
 
-            if (count == start) {
-                pStart = &s.s[i+1];
-            } else if (count == end) {
-                pEnd = &s.s[i];
+    if (start <= currentLine) {
+        buffer_moveToBeginningOfLine(this);
+        while (1) {
+            if (currentLine == start) {
                 break;
             }
+            buffer_moveUp(this);
+        }
+        pStart = &s.s[cursorPos];
+    }
+
+    while (1) {
+        buffer_moveDown(this);
+        if (currentLine == start) {
+            buffer_moveToBeginningOfLine(this);
+            pStart = &s.s[cursorPos];
+            break;
+
+        } else if (currentLine == end) {
+            buffer_moveToEndOfLine(this);
+            pEnd = &s.s[cursorPos];
+            break;
+
+        } else if (cursorPos == s.s.size()) {
+            break;
         }
     }
+
+    currentLine = currentLineCopy;
+    cursorPos   = cursorPosCopy;
 
     if (pEnd == nullptr) {
         pEnd = &s.s.back();

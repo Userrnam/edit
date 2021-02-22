@@ -94,7 +94,8 @@ int main() {
     editor.init();
 
     // f.open("test.txt", std::ios::in);
-    f.open("entt.hpp", std::ios::in);
+    // f.open("entt.hpp", std::ios::in);
+    f.open("bigfile.txt", std::ios::in);
     std::string str((std::istreambuf_iterator<char>(f)),
                     std::istreambuf_iterator<char>());
 
