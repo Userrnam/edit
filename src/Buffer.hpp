@@ -15,9 +15,13 @@ String readNextWord(MyString& source);
 
 struct Buffer {
     MyString s;
-    int cursorPos = 0;
 
-    String getLines(int start, int end);
+    int cursorPos = 0;
+    int currentLine = 0;
+    int firstVisibleLine = 0;
+    int lastVisibleLine = 0;
+
+    String getLines(int start, int end, int* relativeCursorPos);
 
     bool isEmpty() { return s.s.empty(); }
     void addChar(char c);

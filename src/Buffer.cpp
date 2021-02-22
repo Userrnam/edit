@@ -64,8 +64,11 @@ void fullPrint(const String& s) {
     std::cout << std::endl;
 }
 
-String Buffer::getLines(int start, int end) {
+String Buffer::getLines(int start, int end, int* relativeCursorPos) {
     int count = 0;
+
+    firstVisibleLine = start;
+    lastVisibleLine  = end;
 
     if (s.s.empty()) {
         return "";
@@ -79,7 +82,7 @@ String Buffer::getLines(int start, int end) {
             count++;
 
             if (count == start) {
-                pStart = &s.s[i];
+                pStart = &s.s[i+1];
             } else if (count == end) {
                 pEnd = &s.s[i];
                 break;
@@ -91,7 +94,9 @@ String Buffer::getLines(int start, int end) {
         pEnd = &s.s.back();
     }
 
-    return String(pStart, pEnd);
+    *relativeCursorPos = cursorPos - (pStart - &s.s[0]);
+
+    return String(pStart, pEnd + 1);
 }
 
 void Buffer::addChar(char c) {
@@ -100,11 +105,10 @@ void Buffer::addChar(char c) {
 }
 
 int Buffer::getCurrentPositionInLine() {
-    int pos = cursorPos;
     int count = 0;
 
     while (1) {
-        if (pos-count == 0 || s.s[pos-count-1] == '\n') {
+        if (cursorPos-count == 0 || s.s[cursorPos-count-1] == '\n') {
             return count;
         }
 
@@ -114,6 +118,10 @@ int Buffer::getCurrentPositionInLine() {
 
 void buffer_eraseChar(Buffer* buffer) {
     if (buffer->cursorPos == 0)  return;
+
+    if (buffer->s.s[buffer->cursorPos] == '\n') {
+        buffer->currentLine--;
+    }
 
     buffer->cursorPos--;
     buffer->s.s.erase(buffer->cursorPos, 1);
@@ -138,19 +146,29 @@ void buffer_removeline(Buffer* buffer) {
 }
 
 void buffer_moveLeft(Buffer* buffer) {
-    if (buffer->cursorPos > 0)
-    buffer->cursorPos--;
+    if (buffer->cursorPos > 0) {
+        buffer->cursorPos--;
+        if (buffer->s.s[buffer->cursorPos] == '\n') {
+            buffer->currentLine--;
+        }
+    }
 }
 
 void buffer_moveRight(Buffer* buffer) {
-    if (buffer->cursorPos < buffer->s.s.size()-1)
-    buffer->cursorPos++;
+    if (buffer->cursorPos < buffer->s.s.size()) {
+        if (buffer->s.s[buffer->cursorPos] == '\n') {
+            buffer->currentLine++;
+        }
+        buffer->cursorPos++;
+    }
 }
 
 void buffer_moveUp(Buffer* buffer) {
     int linePos = buffer->getCurrentPositionInLine();
 
     if (linePos == buffer->cursorPos)  return;
+
+    buffer->currentLine--;
 
     buffer_moveToBegginingOfLine(buffer);
 
@@ -174,16 +192,18 @@ void buffer_moveDown(Buffer* buffer) {
         return;
     }
 
+    buffer->currentLine++;
+
     buffer->cursorPos++;
 
-    for (int i = 0; i < linePos && buffer->s.s[buffer->cursorPos] != '\n' && buffer->cursorPos < buffer->s.s.size()-1; ++i) {
+    for (int i = 0; i < linePos && buffer->s.s[buffer->cursorPos] != '\n' && buffer->cursorPos < buffer->s.s.size(); ++i) {
         buffer->cursorPos++;
     }
 }
 
 void buffer_moveToEndOfLine(Buffer* buffer) {
     while (1) {
-        if (buffer->cursorPos == buffer->s.s.size()-1 || buffer->s.s[buffer->cursorPos] == '\n') {
+        if (buffer->cursorPos == buffer->s.s.size() || buffer->s.s[buffer->cursorPos] == '\n') {
             return;
         }
 
@@ -199,13 +219,17 @@ void buffer_moveToBegginingOfLine(Buffer* buffer) {
 }
 
 void buffer_moveWordForward(Buffer* buffer) {
-    if (buffer->cursorPos == buffer->s.s.size()-1)  return;
+    if (buffer->cursorPos == buffer->s.s.size())  return;
 
     MyString ms;
     ms.pos = buffer->cursorPos;
     ms.s = buffer->s.s;
 
     auto w = readNextWord(ms);
+
+    if (buffer->s.s[buffer->cursorPos] == '\n') {
+        buffer->currentLine++;
+    }
 
     buffer->cursorPos += w.size();
 }
@@ -220,4 +244,8 @@ void buffer_moveWordBackword(Buffer* buffer) {
     auto w = readPreviousWord(ms);
 
     buffer->cursorPos -= w.size();
+
+    if (buffer->s.s[buffer->cursorPos] == '\n') {
+        buffer->currentLine--;
+    }
 }

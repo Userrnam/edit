@@ -1,3 +1,5 @@
+#include <unordered_map>
+
 #include "Editor.hpp"
 
 
@@ -17,6 +19,7 @@ const uint CmdKeyAlt     = 1;
 const uint CmdKeyControl = 2;
 const uint CmdKeyShift   = 4;
 const uint CmdKeySystem  = 8;
+const float leftSpacing  = 100;
 
 uint eventToCode(sf::Event::KeyEvent e) {
     uint res = 0;
@@ -32,11 +35,15 @@ uint eventToCode(sf::Event::KeyEvent e) {
 typedef void (*BufferFunction)(Buffer*);
 
 struct KeyBinding {
-    BufferFunction function;
+    std::vector<BufferFunction> sequence;
     uint cmdKeys = 0;
 
     KeyBinding() {}
-    KeyBinding(BufferFunction fp, uint keys) : function(fp), cmdKeys(keys) {}
+    KeyBinding(std::vector<BufferFunction> _sequence, uint keys) : sequence(_sequence), cmdKeys(keys) {}
+    KeyBinding(BufferFunction fp, uint keys) {
+        sequence.push_back(fp);
+        cmdKeys = keys;
+    }
 };
 
 std::unordered_map<sf::Keyboard::Key, std::vector<KeyBinding>> bindings = {
@@ -65,22 +72,35 @@ void Editor::draw(sf::RenderWindow& window) {
     t.setFont(font);
     t.setCharacterSize(text.getCharacterSize());
 
+    // draw numbers
+    std::string nums = "";
+    for (int n = buffer.firstVisibleLine; n < buffer.lastVisibleLine; ++n) {
+        nums += std::to_string(n) + "\n";
+    }
+
+    t.setPosition({0, 0});
+    t.setFillColor(sf::Color::Black);
+    t.setString(nums);
+
+    window.draw(t);
+
     MyString ms;
     ms.s = text.getString();
 
     int index = 0;
+
     while (1) {
         auto word = readNextWord(ms);
 
         if (word == "") {
-            buffer.s.pos = 0;
+            // buffer.s.pos = 0;
             break;
         }
 
         auto pos = text.findCharacterPos(index);
 
         if (pos.y > window.getSize().y) {
-            buffer.s.pos = 0;
+            // buffer.s.pos = 0;
             break;
         }
 
@@ -100,9 +120,19 @@ void Editor::init() {
     text.setFont(font);
     text.setFillColor(sf::Color::Black);
 
-    text.setString("H\n");
-    charSize = text.getGlobalBounds().getSize();
-    charSize.y = text.getCharacterSize();
+    std::string dummy = "";
+
+    for (int i = 0; i < 100; ++i) {
+        dummy += "H\n";
+    }
+
+    dummy.pop_back();
+
+    text.setString(dummy);
+
+    charSize = text.getLocalBounds().getSize();
+    charSize.y /= 100;
+
     text.setString("");
 
     cursor.setSize(charSize);
@@ -110,14 +140,23 @@ void Editor::init() {
 }
 
 void Editor::updateDrawInfo(const sf::RenderWindow& window) {
-    auto s = buffer.getLines(0, window.getSize().x / cursor.getSize().x);
+    if (buffer.currentLine == buffer.lastVisibleLine - 3) {
+        topLine += 1;
+    } else if (buffer.currentLine == buffer.firstVisibleLine && buffer.currentLine != 0) {
+        topLine -= 1;
+    }
+
+    int cursorPos;
+
+    auto s = buffer.getLines(topLine, topLine + window.getSize().y / cursor.getSize().y + 2, &cursorPos);
 
     text.setString(s);
+    text.setPosition({ leftSpacing, scrollValue });
 
     if (buffer.isEmpty()) {
-        cursor.setPosition(sf::Vector2f(0, 0));
+        cursor.setPosition(sf::Vector2f(leftSpacing, text.getLineSpacing()));
     } else {
-        auto pos = text.findCharacterPos(buffer.cursorPos);
+        auto pos = text.findCharacterPos(cursorPos);
 
         cursor.setPosition(pos);
     }
@@ -133,7 +172,9 @@ void Editor::update(EditInfo info) {
     if (it != bindings.end()) {
         for (auto v : it->second) {
             if (v.cmdKeys == code) {
-                v.function(&buffer);
+                for (auto function : v.sequence) {
+                    function(&buffer);
+                }
                 handled = true;
                 break;
             }
@@ -143,4 +184,35 @@ void Editor::update(EditInfo info) {
     if (!handled && info.c != -1) {
         buffer.addChar(info.c);
     }
+}
+
+void Editor::scroll(float delta) {
+    // scrollValue += delta;
+
+    // int k = scrollValue / cursor.getSize().y;
+
+    // std::cout << k << std::endl;
+
+    // if (abs(k) > 0) {
+    //     scrollValue -= k * cursor.getSize().y;
+    //     topLine -= k;
+
+    //     if (topLine < 0) {
+    //         topLine = 0;
+    //         scrollValue = 0;
+    //     }
+    // }
+
+    // if (scrollValue > cursor.getSize().y) {
+    //     scrollValue -= k * cursor.getSize().y;
+    //     topLine++;
+    // } else if (scrollValue < 0) {
+    //     scrollValue -= k * cursor.getSize().y;
+    //     topLine--;
+
+    //     if (topLine < 0) {
+    //         topLine = 0;
+    //         scrollValue = 0;
+    //     }
+    // }
 }

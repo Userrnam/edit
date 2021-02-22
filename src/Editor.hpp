@@ -2,7 +2,6 @@
 
 #include <SFML/Graphics.hpp>
 #include <iostream>
-#include <unordered_map>
 
 #include "Buffer.hpp"
 
@@ -20,10 +19,15 @@ struct Editor {
     sf::Vector2f charSize;
     sf::Font font;
 
+    int topLine = 0;
+    float scrollValue = 0;
+
     void draw(sf::RenderWindow& window);
 
     void init();
 
     void update(EditInfo info);
+    void scroll(float delta);
+
     void updateDrawInfo(const sf::RenderWindow& window);
 };
