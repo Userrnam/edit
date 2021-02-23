@@ -147,10 +147,12 @@ void Editor::init() {
 }
 
 void Editor::updateDrawInfo(const sf::RenderWindow& window) {
-    if (buffer.currentLine >= lastVisibleLine - 3) {
-        topLine += (buffer.currentLine - lastVisibleLine + 4);
-    } else if (buffer.currentLine <= firstVisibleLine) {
-        topLine -= (firstVisibleLine - buffer.currentLine + 1);
+    lastVisibleLine = firstVisibleLine + window.getSize().y / cursor.getSize().y + 2;
+
+    if (buffer.cursorPos.y >= lastVisibleLine - 3) {
+        topLine += (buffer.cursorPos.y - lastVisibleLine + 4);
+    } else if (buffer.cursorPos.y <= firstVisibleLine) {
+        topLine -= (firstVisibleLine - buffer.cursorPos.y + 1);
 
         if (topLine < 0)  topLine = 0;
     }
@@ -158,6 +160,12 @@ void Editor::updateDrawInfo(const sf::RenderWindow& window) {
     int cursorPos;
     firstVisibleLine = topLine;
     lastVisibleLine  = topLine + window.getSize().y / cursor.getSize().y + 2;
+
+    if (lastVisibleLine > buffer.lines.size() + 3) {
+        auto diff = lastVisibleLine - buffer.lines.size() - 3;
+        firstVisibleLine -= diff;
+        lastVisibleLine  -= diff;
+    }
 
     auto s = buffer.getLines(firstVisibleLine, lastVisibleLine, &cursorPos);
 

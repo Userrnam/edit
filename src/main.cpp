@@ -99,7 +99,8 @@ int main() {
     std::string str((std::istreambuf_iterator<char>(f)),
                     std::istreambuf_iterator<char>());
 
-    editor.buffer.s.s = str;
+    // editor.buffer.s.s = str;
+    editor.buffer.loadText(str);
     editor.updateDrawInfo(window);
 
     window.clear(sf::Color::White);
@@ -114,8 +115,6 @@ int main() {
                 window.close();
             } else if (event.type == sf::Event::KeyPressed) {
                 auto code = event.key.code;
-
-                // std::cout << code << std::endl;
 
                 EditInfo ei;
                 ei.event = event.key;

@@ -3,7 +3,7 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 
-#include "Buffer.hpp"
+#include "Buffer2D.hpp"
 
 
 struct EditInfo {

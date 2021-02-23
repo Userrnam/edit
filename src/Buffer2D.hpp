@@ -3,7 +3,6 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 
-/*
 
 typedef std::string String;
 
@@ -13,19 +12,21 @@ struct MyString {
 };
 
 String readNextWord(MyString& source);
+String readPreviousWord(MyString& source);
 
 struct Buffer {
-    MyString s;
+    std::vector<String> lines;
 
-    int cursorPos = 0;
-    int currentLine = 0;
+    sf::Vector2i cursorPos = {};
 
     String getLines(int start, int end, int* relativeCursorPos);
 
-    bool isEmpty() { return s.s.empty(); }
+    void loadText(const String& text);
+    bool isEmpty() { return lines.empty(); }
     void addChar(char c);
-    int getCurrentPositionInLine();
     bool onLastLine();
+
+    void clampX();
 };
 
 void buffer_eraseChar(Buffer* buffer);
@@ -40,4 +41,3 @@ void buffer_moveWordForward(Buffer* buffer);
 void buffer_moveWordBackword(Buffer* buffer);
 void buffer_moveToEndOfFile(Buffer* buffer);
 void buffer_moveToBeginningOfFile(Buffer* buffer);
-*/

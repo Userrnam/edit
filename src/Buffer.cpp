@@ -1,6 +1,6 @@
 #include "Buffer.hpp"
 
-
+/*
 std::vector<char> separators = {
     ' ', '\t', '\n',
     '(', ')', '[', ']', '{', '}', '<', '>',
@@ -299,3 +299,4 @@ void buffer_moveToBeginningOfFile(Buffer* buffer) {
     buffer->cursorPos = 0;
     buffer->currentLine = 0;
 }
+*/
