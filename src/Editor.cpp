@@ -77,7 +77,7 @@ void Editor::draw(sf::RenderWindow& window) {
 
     // draw numbers
     std::string nums = "";
-    for (int n = buffer.firstVisibleLine; n < buffer.lastVisibleLine; ++n) {
+    for (int n = firstVisibleLine; n < lastVisibleLine; ++n) {
         nums += std::to_string(n) + "\n";
     }
 
@@ -147,17 +147,19 @@ void Editor::init() {
 }
 
 void Editor::updateDrawInfo(const sf::RenderWindow& window) {
-    if (buffer.currentLine >= buffer.lastVisibleLine - 3) {
-        topLine += (buffer.currentLine - buffer.lastVisibleLine + 4);
-    } else if (buffer.currentLine <= buffer.firstVisibleLine) {
-        topLine -= (buffer.firstVisibleLine - buffer.currentLine + 1);
+    if (buffer.currentLine >= lastVisibleLine - 3) {
+        topLine += (buffer.currentLine - lastVisibleLine + 4);
+    } else if (buffer.currentLine <= firstVisibleLine) {
+        topLine -= (firstVisibleLine - buffer.currentLine + 1);
 
         if (topLine < 0)  topLine = 0;
     }
 
     int cursorPos;
+    firstVisibleLine = topLine;
+    lastVisibleLine  = topLine + window.getSize().y / cursor.getSize().y + 2;
 
-    auto s = buffer.getLines(topLine, topLine + window.getSize().y / cursor.getSize().y + 2, &cursorPos);
+    auto s = buffer.getLines(firstVisibleLine, lastVisibleLine, &cursorPos);
 
     text.setString(s);
     text.setPosition({ 0, scrollValue });

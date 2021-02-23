@@ -65,9 +65,6 @@ void fullPrint(const String& s) {
 }
 
 String Buffer::getLines(int start, int end, int* relativeCursorPos) {
-    firstVisibleLine = start;
-    lastVisibleLine  = end;
-
     if (s.s.empty()) {
         return "";
     }

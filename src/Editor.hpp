@@ -21,6 +21,8 @@ struct Editor {
 
     int topLine = 0;
     float scrollValue = 0;
+    int firstVisibleLine = 0;
+    int lastVisibleLine = 5;
 
     void draw(sf::RenderWindow& window);
 

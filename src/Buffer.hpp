@@ -18,8 +18,6 @@ struct Buffer {
 
     int cursorPos = 0;
     int currentLine = 0;
-    int firstVisibleLine = 0;
-    int lastVisibleLine = 5;
 
     String getLines(int start, int end, int* relativeCursorPos);
 
