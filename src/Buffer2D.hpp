@@ -18,6 +18,7 @@ struct Buffer {
     std::vector<String> lines;
 
     sf::Vector2i cursorPos = {};
+    sf::Vector2i selectionStartPos = {-1, 0};
 
     String getLines(int start, int end, int* relativeCursorPos);
 
@@ -25,12 +26,19 @@ struct Buffer {
     bool isEmpty() { return lines.empty(); }
     void addChar(char c);
     bool onLastLine();
+    int getRelativeCursorPos(int start, sf::Vector2i pos);
 
     void clampX();
 };
 
+void buffer_toggleSelection(Buffer* buffer);
+void buffer_beginSelection(Buffer* buffer);
+void buffer_endSelection(Buffer* buffer);
+
 void buffer_eraseChar(Buffer* buffer);
+void buffer_deleteChar(Buffer* buffer);
 void buffer_removeline(Buffer* buffer);
+
 void buffer_moveLeft(Buffer* buffer);
 void buffer_moveRight(Buffer* buffer);
 void buffer_moveUp(Buffer* buffer);

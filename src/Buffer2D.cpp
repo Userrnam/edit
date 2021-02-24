@@ -77,7 +77,17 @@ void Buffer::loadText(const String &text) {
     if (t.size()) {
         lines.push_back(t);
     }
-    std::cout << lines.size();
+    std::cout << lines.size() << std::endl;
+}
+
+int Buffer::getRelativeCursorPos(int start, sf::Vector2i pos) {
+    int res = 0;
+    for (int i = start; i < pos.y; ++i) {
+        res += (lines[i].size() + 1);
+    }
+    res += (pos.x < lines[pos.y].size() ? pos.x : lines[pos.y].size());
+
+    return res;
 }
 
 String Buffer::getLines(int start, int end, int* relativeCursorPos) {
@@ -146,6 +156,20 @@ void buffer_eraseChar(Buffer* buffer) {
         buffer->lines[buffer->cursorPos.y] += remaining;
     } else {
         buffer->cursorPos.x--;
+        buffer->lines[buffer->cursorPos.y].erase(buffer->cursorPos.x, 1);
+    }
+}
+
+void buffer_deleteChar(Buffer* buffer) {
+    buffer->clampX();
+
+    if (buffer->cursorPos.x == buffer->lines[buffer->cursorPos.y].size() && buffer->cursorPos.y == buffer->lines.size())  return;
+
+    if (buffer->cursorPos.x == buffer->lines[buffer->cursorPos.y].size()) {
+        auto nextLine = buffer->lines[buffer->cursorPos.y+1];
+        buffer->lines.erase(buffer->lines.begin()+buffer->cursorPos.y+1);
+        buffer->lines[buffer->cursorPos.y] += nextLine;
+    } else {
         buffer->lines[buffer->cursorPos.y].erase(buffer->cursorPos.x, 1);
     }
 }
@@ -224,7 +248,7 @@ void buffer_moveWordBackword(Buffer* buffer) {
         buffer->cursorPos.x = buffer->lines[buffer->cursorPos.y].size();
     } else {
         MyString ms;
-        ms.pos = buffer->cursorPos.x;
+        ms.pos = buffer->cursorPos.x - 1;
         ms.s = buffer->lines[buffer->cursorPos.y];
 
         auto w = readPreviousWord(ms);
@@ -241,4 +265,20 @@ void buffer_moveToEndOfFile(Buffer* buffer) {
 void buffer_moveToBeginningOfFile(Buffer* buffer) {
     buffer->cursorPos.x = 0;
     buffer->cursorPos.y = 0;
+}
+
+void buffer_toggleSelection(Buffer* buffer) {
+    if (buffer->selectionStartPos.x < 0) {
+        buffer->selectionStartPos = buffer->cursorPos;
+    } else {
+        buffer->selectionStartPos = {-1, 0};
+    }
+}
+
+void buffer_beginSelection(Buffer* buffer) {
+    buffer->selectionStartPos = buffer->cursorPos;
+}
+
+void buffer_endSelection(Buffer* buffer) {
+    buffer->selectionStartPos = {-1, 0};
 }

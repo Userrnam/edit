@@ -55,6 +55,7 @@ std::unordered_map<sf::Keyboard::Key, std::vector<KeyBinding>> bindings = {
     {sf::Keyboard::E,    { KeyBinding(buffer_moveToEndOfLine, CmdKeyControl) } },
 
     {sf::Keyboard::BackSpace, { KeyBinding(buffer_eraseChar, 0), KeyBinding(buffer_removeline, CmdKeySystem) } },
+    {sf::Keyboard::Delete,    { KeyBinding(buffer_deleteChar, 0) } },
 
     {sf::Keyboard::Left,  { KeyBinding(buffer_moveLeft, 0) } },
     {sf::Keyboard::Right, { KeyBinding(buffer_moveRight, 0) } },
@@ -68,6 +69,8 @@ std::unordered_map<sf::Keyboard::Key, std::vector<KeyBinding>> bindings = {
     } },
 
     {sf::Keyboard::G, { KeyBinding(buffer_moveToBeginningOfFile, CmdKeyControl) } },
+
+    {sf::Keyboard::S, { KeyBinding(buffer_toggleSelection, CmdKeyControl) } },
 };
 
 void Editor::draw(sf::RenderWindow& window) {
@@ -90,8 +93,28 @@ void Editor::draw(sf::RenderWindow& window) {
     text.move({ls, 0});
     cursor.move({ls, 0});
 
-    window.draw(cursor);
     window.draw(t);
+
+    // draw selection
+    if (buffer.selectionStartPos.x != -1) {
+        sf::RectangleShape selection;
+        selection.setFillColor(sf::Color::Red);
+
+        int index = buffer.getRelativeCursorPos(firstVisibleLine, buffer.selectionStartPos);
+        std::cout << "Index is " << index << std::endl;
+        selection.setPosition(text.findCharacterPos(index));
+        selection.setSize({
+            cursor.getPosition().x - selection.getPosition().x,
+            cursor.getSize().y
+        });
+
+        std::cout << "Pos:  " << selection.getPosition().x << "; " << selection.getPosition().y << std::endl;
+        std::cout << "Size: " << selection.getSize().x << "; " << selection.getSize().y << std::endl;
+
+        window.draw(selection);
+    }
+
+    window.draw(cursor);
 
     MyString ms;
     ms.s = text.getString();
@@ -151,10 +174,8 @@ void Editor::updateDrawInfo(const sf::RenderWindow& window) {
 
     if (buffer.cursorPos.y >= lastVisibleLine - 3) {
         topLine += (buffer.cursorPos.y - lastVisibleLine + 4);
-    } else if (buffer.cursorPos.y <= firstVisibleLine) {
+    } else if (buffer.cursorPos.y < firstVisibleLine) {
         topLine -= (firstVisibleLine - buffer.cursorPos.y + 1);
-
-        if (topLine < 0)  topLine = 0;
     }
 
     int cursorPos;
@@ -163,8 +184,11 @@ void Editor::updateDrawInfo(const sf::RenderWindow& window) {
 
     if (lastVisibleLine > buffer.lines.size() + 3) {
         auto diff = lastVisibleLine - buffer.lines.size() - 3;
-        firstVisibleLine -= diff;
-        lastVisibleLine  -= diff;
+        int val = firstVisibleLine - diff;
+        if (val >= 0) {
+            firstVisibleLine -= diff;
+            lastVisibleLine  -= diff;
+        }
     }
 
     auto s = buffer.getLines(firstVisibleLine, lastVisibleLine, &cursorPos);
