@@ -100,18 +100,49 @@ void Editor::draw(sf::RenderWindow& window) {
         sf::RectangleShape selection;
         selection.setFillColor(sf::Color::Red);
 
-        int index = buffer.getRelativeCursorPos(firstVisibleLine, buffer.selectionStartPos);
-        std::cout << "Index is " << index << std::endl;
-        selection.setPosition(text.findCharacterPos(index));
-        selection.setSize({
-            cursor.getPosition().x - selection.getPosition().x,
-            cursor.getSize().y
-        });
+        auto pos1 = buffer.selectionStartPos;
+        int inc = pos1.y > buffer.cursorPos.y ? -1 : 1;
 
-        std::cout << "Pos:  " << selection.getPosition().x << "; " << selection.getPosition().y << std::endl;
-        std::cout << "Size: " << selection.getSize().x << "; " << selection.getSize().y << std::endl;
+        if (inc < 0) {
+            int k = 0;
+        }
 
-        window.draw(selection);
+        while (1) {
+            int index = buffer.getRelativeCursorPos(firstVisibleLine, pos1);
+            selection.setPosition(text.findCharacterPos(index));
+
+            if (pos1.y != buffer.cursorPos.y) {
+                auto p = pos1;
+
+                if (inc == 1) {
+                    p.x = 10000000;
+                    pos1.x = 0;
+                } else {
+                    p.x = 0;
+                    pos1.x = 10000000;
+                }
+
+                index = buffer.getRelativeCursorPos(firstVisibleLine, p);
+                selection.setSize({
+                    text.findCharacterPos(index).x - selection.getPosition().x,
+                    cursor.getSize().y
+                });
+
+            } else {
+                selection.setSize({
+                    cursor.getPosition().x - selection.getPosition().x,
+                    cursor.getSize().y
+                });
+            }
+
+            window.draw(selection);
+
+            if (pos1.y == buffer.cursorPos.y) {
+                break;
+            }
+
+            pos1.y += inc;
+        }
     }
 
     window.draw(cursor);
