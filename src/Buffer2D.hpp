@@ -49,3 +49,5 @@ void buffer_moveWordForward(Buffer* buffer);
 void buffer_moveWordBackword(Buffer* buffer);
 void buffer_moveToEndOfFile(Buffer* buffer);
 void buffer_moveToBeginningOfFile(Buffer* buffer);
+
+void buffer_removeSelection(Buffer* buffer);

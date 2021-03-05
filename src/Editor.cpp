@@ -68,6 +68,8 @@ std::unordered_map<sf::Keyboard::Key, std::vector<KeyBinding>> bindings = {
         KeyBinding(buffer_moveToEndOfFile, CmdKeyControl)
     } },
 
+    {sf::Keyboard::D, { KeyBinding(buffer_removeSelection, CmdKeyControl) } },
+
     {sf::Keyboard::G, { KeyBinding(buffer_moveToBeginningOfFile, CmdKeyControl) } },
 
     {sf::Keyboard::S, { KeyBinding(buffer_toggleSelection, CmdKeyControl) } },

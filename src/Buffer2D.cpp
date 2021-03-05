@@ -282,3 +282,43 @@ void buffer_beginSelection(Buffer* buffer) {
 void buffer_endSelection(Buffer* buffer) {
     buffer->selectionStartPos = {-1, 0};
 }
+
+void buffer_removeSelection(Buffer* buffer) {
+    if (buffer->selectionStartPos.x == -1) {
+        return;
+    }
+
+    auto start = buffer->selectionStartPos;
+    auto end   = buffer->cursorPos;
+
+    if (start.y != end.y) {
+        if (start.y > end.y) {
+            end   = buffer->selectionStartPos;
+            start = buffer->cursorPos;
+        }
+        
+        auto& line = buffer->lines[start.y];
+        line.erase(line.begin() + start.x, line.begin() + line.size());
+
+        if (end.y - start.y - 1 > 0) {
+            buffer->lines.erase(buffer->lines.begin() + start.y + 1, buffer->lines.begin() + end.y);
+        }
+
+        buffer->lines[start.y + 1].erase(0, end.x);
+
+        buffer->lines[start.y] += buffer->lines[start.y+1];
+
+        buffer->lines.erase(buffer->lines.begin() + start.y + 1);
+    } else {
+        if (start.x > end.x) {
+            end   = buffer->selectionStartPos;
+            start = buffer->cursorPos;
+        }
+
+        auto& line = buffer->lines[start.y];
+        line.erase(line.begin() + start.x, line.begin() + end.x);
+    }
+
+    buffer->cursorPos = start;
+    buffer->selectionStartPos = {-1, 0};
+}
