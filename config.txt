@@ -1,0 +1,27 @@
+:KeyBindings
+
+Control-H    buffer_moveLeft
+Control-L    buffer_moveRight
+Control-J    buffer_moveDown
+Control-K    buffer_moveUp
+
+Control-0    buffer_moveToBeginningOfLine
+Control-E    buffer_moveToEndOfLine
+
+Control-G    buffer_moveToBeginningOfFile
+Control-B    buffer_moveToEndOfFile
+
+BackSpace    buffer_eraseChar
+Delete       buffer_deleteChar
+System-BackSpace  buffer_removeLine
+
+Left         buffer_moveLeft
+Right        buffer_moveRight
+Up           buffer_moveUp
+Down         buffer_moveDown
+
+Control-System-W  buffer_moveWordForward
+Control-System-B  buffer_moveWordBackword
+
+Control-D     buffer_removeSelection
+Control-S     buffer_toggleSelection

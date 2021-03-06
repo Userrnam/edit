@@ -4,7 +4,7 @@
 #include <iostream>
 
 #include "Buffer2D.hpp"
-
+#include "Config.hpp"
 
 struct EditInfo {
     char c = -1;
@@ -13,6 +13,7 @@ struct EditInfo {
 
 struct Editor {
     Buffer buffer;
+    Config config;
 
     sf::Text text;
     sf::RectangleShape cursor;

@@ -37,7 +37,7 @@ void buffer_endSelection(Buffer* buffer);
 
 void buffer_eraseChar(Buffer* buffer);
 void buffer_deleteChar(Buffer* buffer);
-void buffer_removeline(Buffer* buffer);
+void buffer_removeLine(Buffer* buffer);
 
 void buffer_moveLeft(Buffer* buffer);
 void buffer_moveRight(Buffer* buffer);

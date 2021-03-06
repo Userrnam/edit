@@ -174,7 +174,7 @@ void buffer_deleteChar(Buffer* buffer) {
     }
 }
 
-void buffer_removeline(Buffer* buffer) {
+void buffer_removeLine(Buffer* buffer) {
     buffer->clampX();
 
     if (buffer->cursorPos.x == 0)  return;

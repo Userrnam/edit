@@ -21,7 +21,7 @@ const uint CmdKeyShift   = 4;
 const uint CmdKeySystem  = 8;
 const float leftSpacing  = 50;
 
-uint eventToCode(sf::Event::KeyEvent e) {
+uint cmdToCode(sf::Event::KeyEvent e) {
     uint res = 0;
 
     if (e.alt)     res |= CmdKeyAlt;
@@ -31,49 +31,6 @@ uint eventToCode(sf::Event::KeyEvent e) {
 
     return res;
 }
-
-typedef void (*BufferFunction)(Buffer*);
-
-struct KeyBinding {
-    std::vector<BufferFunction> sequence;
-    uint cmdKeys = 0;
-
-    KeyBinding() {}
-    KeyBinding(std::vector<BufferFunction> _sequence, uint keys) : sequence(_sequence), cmdKeys(keys) {}
-    KeyBinding(BufferFunction fp, uint keys) {
-        sequence.push_back(fp);
-        cmdKeys = keys;
-    }
-};
-
-std::unordered_map<sf::Keyboard::Key, std::vector<KeyBinding>> bindings = {
-    {sf::Keyboard::H,    { KeyBinding(buffer_moveLeft, CmdKeyControl) } },
-    {sf::Keyboard::L,    { KeyBinding(buffer_moveRight, CmdKeyControl) } },
-    {sf::Keyboard::J,    { KeyBinding(buffer_moveDown, CmdKeyControl) } },
-    {sf::Keyboard::K,    { KeyBinding(buffer_moveUp, CmdKeyControl) } },
-    {sf::Keyboard::Num0, { KeyBinding(buffer_moveToBeginningOfLine, CmdKeyControl) } },
-    {sf::Keyboard::E,    { KeyBinding(buffer_moveToEndOfLine, CmdKeyControl) } },
-
-    {sf::Keyboard::BackSpace, { KeyBinding(buffer_eraseChar, 0), KeyBinding(buffer_removeline, CmdKeySystem) } },
-    {sf::Keyboard::Delete,    { KeyBinding(buffer_deleteChar, 0) } },
-
-    {sf::Keyboard::Left,  { KeyBinding(buffer_moveLeft, 0) } },
-    {sf::Keyboard::Right, { KeyBinding(buffer_moveRight, 0) } },
-    {sf::Keyboard::Up,    { KeyBinding(buffer_moveUp, 0) } },
-    {sf::Keyboard::Down,  { KeyBinding(buffer_moveDown, 0) } },
-
-    {sf::Keyboard::W,  { KeyBinding(buffer_moveWordForward,  CmdKeyShift | CmdKeySystem) } },
-    {sf::Keyboard::B,  {
-        KeyBinding(buffer_moveWordBackword, CmdKeyShift | CmdKeySystem),
-        KeyBinding(buffer_moveToEndOfFile, CmdKeyControl)
-    } },
-
-    {sf::Keyboard::D, { KeyBinding(buffer_removeSelection, CmdKeyControl) } },
-
-    {sf::Keyboard::G, { KeyBinding(buffer_moveToBeginningOfFile, CmdKeyControl) } },
-
-    {sf::Keyboard::S, { KeyBinding(buffer_toggleSelection, CmdKeyControl) } },
-};
 
 void Editor::draw(sf::RenderWindow& window) {
     sf::Text t;
@@ -178,7 +135,9 @@ void Editor::draw(sf::RenderWindow& window) {
 }
 
 void Editor::init() {
-    font.loadFromFile("Hack-Regular.ttf");
+    config.load("config.txt");
+
+    font.loadFromFile(config.fontName);
 
     text.setFont(font);
     text.setFillColor(sf::Color::Black);
@@ -239,25 +198,21 @@ void Editor::updateDrawInfo(const sf::RenderWindow& window) {
 }
 
 void Editor::update(EditInfo info) {
-    auto it = bindings.find(info.event.code);
+    KeyBinding binding = {};
 
-    bool handled = false;
+    binding.info.key     = info.event.code;
+    binding.info.cmdKeys = cmdToCode(info.event);
 
-    auto code = eventToCode(info.event);
+    auto it = config.keyBindings.find(binding);
 
-    if (it != bindings.end()) {
-        for (auto v : it->second) {
-            if (v.cmdKeys == code) {
-                for (auto function : v.sequence) {
-                    function(&buffer);
-                }
-                handled = true;
-                break;
-            }
+    if (it != config.keyBindings.end()) {
+        for (auto function : it->second.sequence) {
+            function(&buffer);
         }
+        return;
     }
 
-    if (!handled && info.c != -1) {
+    if (info.c != -1) {
         buffer.addChar(info.c);
     }
 }
